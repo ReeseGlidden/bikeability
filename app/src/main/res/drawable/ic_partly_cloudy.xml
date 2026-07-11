@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- sun peeking out top-left -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M8.5,7.5 m-3.2,0 a3.2,3.2 0 1,0 6.4,0 a3.2,3.2 0 1,0 -6.4,0" />
+    <path
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M8.5,1.2 L8.5,3 M2.2,7.5 L4,7.5 M3.9,2.9 L5.2,4.2 M13.1,2.9 L11.8,4.2" />
+    <!-- cloud in front, lower right -->
+    <path
+        android:fillColor="#CFD8DC"
+        android:pathData="M19.5,12.6C19,10.2 16.9,8.4 14.4,8.4C12.4,8.4 10.6,9.6 9.8,11.3C7.7,11.5 6,13.3 6,15.5A4.2,4.2 0 0,0 10.2,19.7H19.3A3.5,3.5 0 0,0 22.8,16.2C22.8,14.3 21.3,12.8 19.5,12.6Z" />
+</vector>

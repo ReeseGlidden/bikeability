@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- cloud, shifted up to leave room for drops -->
+    <path
+        android:fillColor="#CFD8DC"
+        android:pathData="M19.35,8.54C18.67,5.09 15.64,2.5 12,2.5C9.11,2.5 6.6,4.14 5.35,6.54C2.34,6.86 0,9.41 0,12.5A6,6 0 0,0 6,18.5H19A5,5 0 0,0 24,13.5C24,10.86 21.95,8.72 19.35,8.54Z" />
+    <!-- drops -->
+    <path
+        android:strokeColor="#81D4FA"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M8,20 L7,22.5 M12.5,20 L11.5,22.5 M17,20 L16,22.5" />
+</vector>
