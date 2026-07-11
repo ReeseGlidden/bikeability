@@ -6,11 +6,11 @@ for each, surfaces the worst-feeling moment — so the bike-vs-drive call takes 
 instead of a scrub through an hourly forecast.
 
 <p align="center">
-  <img src="docs/widget-summer.svg" width="420" alt="Widget on a summer day: green ideal morning, red rainy too-hot evening">
+  <img src="docs/widget-summer.png" width="420" alt="Widget on a summer day: green ideal morning, red rainy too-hot evening">
 </p>
 
 A green morning and a red evening, at a glance: lovely ride in, but you'll come home hot and
-soaked — maybe drive today, or plan to leave early. *(Images are renderings of the widget UI.)*
+soaked — maybe drive today, or plan to leave early. *(Images are real widget renders from the Robolectric screenshot tests.)*
 
 ## Decision support, not an oracle
 
@@ -32,7 +32,7 @@ the numbers explain:
   clothing problem.
 
 <p align="center">
-  <img src="docs/widget-shoulder.svg" width="420" alt="Widget on a fall day: yellow gloves morning, green jacket evening">
+  <img src="docs/widget-shoulder.png" width="420" alt="Widget on a fall day: yellow gloves morning, green jacket evening">
 </p>
 
 Shoulder season: gloves in the morning (yellow — rideable, but gear up), plain jacket weather
@@ -60,9 +60,15 @@ Full design rationale lives in [the spec](commute-weather-widget-spec.md).
 ## Building
 
 ```bash
-./gradlew :app:testDebugUnitTest   # pure-Kotlin comfort engine tests (golden cases from the spec)
+./gradlew :app:testDebugUnitTest   # engine tests (golden cases from the spec) + widget screenshot tests
 ./gradlew :app:assembleDebug       # APK at app/build/outputs/apk/debug/app-debug.apk
 ```
+
+The screenshot tests render the real Glance widget through its actual RemoteViews translation
+(Robolectric native graphics, no emulator needed) and write PNGs to
+`app/build/reports/widget-screenshots/` — check them after UI changes; they catch layout bugs
+mocks can't, like Glance's 10-children-per-container truncation. The README images come from
+these tests.
 
 Requires JDK 17 and an Android SDK (platform 35); point `local.properties` `sdk.dir` at it.
 Min Android 8.0 (API 26). Stack: Kotlin, Jetpack Glance, WorkManager, DataStore, Compose, Ktor.

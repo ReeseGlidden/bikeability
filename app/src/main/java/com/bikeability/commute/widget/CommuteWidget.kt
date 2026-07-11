@@ -3,6 +3,7 @@ package com.bikeability.commute.widget
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
@@ -10,9 +11,11 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
@@ -38,6 +41,14 @@ import com.bikeability.commute.settings.SettingsActivity
 class CommuteWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
 
+    // Two layout buckets: short grids drop the "worst @" line instead of clipping it.
+    override val sizeMode = SizeMode.Responsive(setOf(SIZE_COMPACT, SIZE_REGULAR))
+
+    companion object {
+        val SIZE_COMPACT = DpSize(250.dp, 110.dp)
+        val SIZE_REGULAR = DpSize(250.dp, 170.dp)
+    }
+
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             val prefs = currentState<Preferences>()
@@ -51,7 +62,8 @@ private val dim = ColorProvider(Color(0xB3FFFFFF))
 private val faint = ColorProvider(Color(0x80FFFFFF))
 
 @Composable
-private fun WidgetContent(data: WidgetData?) {
+internal fun WidgetContent(data: WidgetData?) {
+    val compact = LocalSize.current.height < CommuteWidget.SIZE_REGULAR.height
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
@@ -66,9 +78,11 @@ private fun WidgetContent(data: WidgetData?) {
             data.morning == null && data.evening == null ->
                 CenteredMessage(data.message ?: "No forecast data")
             else -> {
-                data.morning?.let { WindowRow(it) }
+                // Rows are weighted so a short widget compresses them instead
+                // of clipping the week strip off the bottom.
+                data.morning?.let { WindowRow(it, compact, GlanceModifier.defaultWeight()) }
                 Spacer(GlanceModifier.height(6.dp))
-                data.evening?.let { WindowRow(it) }
+                data.evening?.let { WindowRow(it, compact, GlanceModifier.defaultWeight()) }
                 if (data.week.isNotEmpty()) {
                     Spacer(GlanceModifier.height(7.dp))
                     WeekStrip(data.week)
@@ -152,12 +166,50 @@ private fun CenteredMessage(text: String) {
 }
 
 @Composable
-private fun WindowRow(w: WindowUi) {
+private fun WindowRow(w: WindowUi, compact: Boolean, modifier: GlanceModifier = GlanceModifier) {
+    if (compact) CompactWindowRow(w, modifier) else RegularWindowRow(w, modifier)
+}
+
+/** One-line variant for short grids: label · icon · temp · feels/category. */
+@Composable
+private fun CompactWindowRow(w: WindowUi, modifier: GlanceModifier) {
     Row(
-        modifier = GlanceModifier
+        modifier = modifier
             .fillMaxWidth()
             .background(ImageProvider(severityBackground(w.severity)))
-            .padding(horizontal = 10.dp, vertical = 8.dp),
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            w.windowLabel,
+            style = TextStyle(color = white, fontSize = 11.sp, fontWeight = FontWeight.Bold),
+            modifier = GlanceModifier.width(64.dp),
+        )
+        Image(
+            provider = ImageProvider(pictographDrawable(w.pictograph)),
+            contentDescription = w.pictograph,
+            modifier = GlanceModifier.size(20.dp),
+        )
+        Spacer(GlanceModifier.defaultWeight())
+        Text(
+            "${w.airTempF}°",
+            style = TextStyle(color = white, fontSize = 20.sp, fontWeight = FontWeight.Bold),
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Text(
+            "feels ${w.feelsLikeF}° · ${w.categoryLabel}",
+            style = TextStyle(color = dim, fontSize = 12.sp),
+        )
+    }
+}
+
+@Composable
+private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(ImageProvider(severityBackground(w.severity)))
+            .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = GlanceModifier.width(64.dp)) {
@@ -173,8 +225,10 @@ private fun WindowRow(w: WindowUi) {
                 contentDescription = w.pictograph,
                 modifier = GlanceModifier.size(26.dp),
             )
-            Text(formatRate(w.peakRateMmHr), style = TextStyle(color = dim, fontSize = 10.sp))
-            Text("${w.peakProbPct}%", style = TextStyle(color = dim, fontSize = 10.sp))
+            Text(
+                "${formatRate(w.peakRateMmHr)} · ${w.peakProbPct}%",
+                style = TextStyle(color = dim, fontSize = 10.sp),
+            )
         }
         Spacer(GlanceModifier.defaultWeight())
         Row(verticalAlignment = Alignment.CenterVertically) {
