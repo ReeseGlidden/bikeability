@@ -148,6 +148,24 @@ class ComfortEngineTest {
     }
 
     @Test
+    fun `next occurrence is today while ahead and tomorrow once passed`() {
+        val now = LocalDateTime.of(2026, 7, 10, 8, 0)
+        assertEquals(
+            LocalDateTime.of(2026, 7, 10, 16, 40),
+            nextOccurrence(now, LocalTime.of(16, 40)),
+        )
+        assertEquals(
+            LocalDateTime.of(2026, 7, 11, 6, 55),
+            nextOccurrence(now, LocalTime.of(6, 55)),
+        )
+        // Exactly now → tomorrow (strictly after).
+        assertEquals(
+            LocalDateTime.of(2026, 7, 11, 8, 0),
+            nextOccurrence(now, LocalTime.of(8, 0)),
+        )
+    }
+
+    @Test
     fun `week strip shows current workweek on weekdays and next week from Saturday`() {
         // Wed Jul 8 2026 → Mon Jul 6 .. Fri Jul 10 (current week)
         val wednesday = LocalDateTime.of(2026, 7, 8, 12, 0)

@@ -105,6 +105,12 @@ fun samplesInWindow(
 fun resolveWindowDate(now: LocalDateTime, windowEnd: LocalTime): LocalDate =
     if (now.toLocalTime() < windowEnd) now.toLocalDate() else now.toLocalDate().plusDays(1)
 
+/** The next time [time] occurs strictly after [now] — today if still ahead, else tomorrow. */
+fun nextOccurrence(now: LocalDateTime, time: LocalTime): LocalDateTime {
+    val todayAt = LocalDateTime.of(now.toLocalDate(), time)
+    return if (todayAt.isAfter(now)) todayAt else todayAt.plusDays(1)
+}
+
 /**
  * The Mon–Fri the week strip previews: the current workweek on weekdays,
  * flipping to the upcoming week from Saturday morning.

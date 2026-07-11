@@ -12,9 +12,12 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -54,6 +57,13 @@ class CommuteWidget : GlanceAppWidget() {
             val prefs = currentState<Preferences>()
             WidgetContent(WidgetStateRepo.decode(prefs[WidgetStateRepo.KEY_DATA]))
         }
+    }
+}
+
+/** Header tap: fetch a fresh forecast without opening settings. */
+class RefreshAction : ActionCallback {
+    override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
+        RefreshScheduler.refreshNow(context)
     }
 }
 
@@ -142,7 +152,9 @@ private fun SeverityChip(severity: String?) {
 
 @Composable
 private fun Header(data: WidgetData?) {
-    Row(modifier = GlanceModifier.fillMaxWidth()) {
+    // The header (full width, including the ↻) refreshes; everything below
+    // it inherits the root's open-settings click.
+    Row(modifier = GlanceModifier.fillMaxWidth().clickable(actionRunCallback<RefreshAction>())) {
         Text(
             text = data?.dateLabel ?: "Commute",
             style = TextStyle(color = white, fontSize = 12.sp, fontWeight = FontWeight.Bold),
@@ -152,6 +164,8 @@ private fun Header(data: WidgetData?) {
             text = data?.let { (if (it.stale) "stale · " else "updated ") + it.updatedLabel } ?: "",
             style = TextStyle(color = if (data?.stale == true) ColorProvider(Color(0xFFFFB74D)) else faint, fontSize = 11.sp),
         )
+        Spacer(GlanceModifier.width(5.dp))
+        Text("↻", style = TextStyle(color = dim, fontSize = 12.sp))
     }
 }
 

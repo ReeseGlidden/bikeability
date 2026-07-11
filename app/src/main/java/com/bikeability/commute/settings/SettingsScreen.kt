@@ -152,7 +152,7 @@ fun SettingsScreen() {
                             snackbar.showSnackbar("Check fields — some values didn't parse")
                         } else {
                             ConfigStore.write(context, config)
-                            RefreshScheduler.schedulePeriodic(context, config.refresh.intervalMinutes)
+                            RefreshScheduler.scheduleAll(context, config)
                             RefreshScheduler.refreshNow(context)
                             snackbar.showSnackbar("Saved — refreshing forecast")
                         }
