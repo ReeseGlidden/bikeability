@@ -81,6 +81,10 @@ private fun WidgetContent(data: WidgetData?) {
 /**
  * Slim workweek preview. Deliberately low-key — faint labels, translucent
  * chips — so it reads as background context under the two alerting rows.
+ *
+ * Glance containers allow at most 10 direct children, so the outer Row gets
+ * exactly one weighted Box per day (which also divides the width evenly)
+ * instead of the days' elements laid out inline.
  */
 @Composable
 private fun WeekStrip(week: List<DayChip>) {
@@ -88,16 +92,26 @@ private fun WeekStrip(week: List<DayChip>) {
         modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(GlanceModifier.defaultWeight())
         week.forEach { day ->
-            Text(day.label, style = TextStyle(color = faint, fontSize = 10.sp))
-            Spacer(GlanceModifier.width(4.dp))
-            Column {
-                SeverityChip(day.morning)
-                Spacer(GlanceModifier.height(2.dp))
-                SeverityChip(day.evening)
+            Box(
+                modifier = GlanceModifier.defaultWeight(),
+                contentAlignment = Alignment.Center,
+            ) {
+                DayCell(day)
             }
-            Spacer(GlanceModifier.defaultWeight())
+        }
+    }
+}
+
+@Composable
+private fun DayCell(day: DayChip) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(day.label, style = TextStyle(color = faint, fontSize = 10.sp))
+        Spacer(GlanceModifier.width(4.dp))
+        Column {
+            SeverityChip(day.morning)
+            Spacer(GlanceModifier.height(2.dp))
+            SeverityChip(day.evening)
         }
     }
 }
