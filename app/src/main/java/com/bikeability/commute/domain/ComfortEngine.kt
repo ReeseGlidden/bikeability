@@ -1,8 +1,10 @@
 package com.bikeability.commute.domain
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.max
@@ -102,6 +104,20 @@ fun samplesInWindow(
  */
 fun resolveWindowDate(now: LocalDateTime, windowEnd: LocalTime): LocalDate =
     if (now.toLocalTime() < windowEnd) now.toLocalDate() else now.toLocalDate().plusDays(1)
+
+/**
+ * The Mon–Fri the week strip previews: the current workweek on weekdays,
+ * flipping to the upcoming week from Saturday morning.
+ */
+fun workweekDates(now: LocalDateTime): List<LocalDate> {
+    val today = now.toLocalDate()
+    val monday = if (today.dayOfWeek == DayOfWeek.SATURDAY || today.dayOfWeek == DayOfWeek.SUNDAY) {
+        today.with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+    } else {
+        today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    }
+    return (0L..4L).map { monday.plusDays(it) }
+}
 
 /**
  * §2.5–2.7: worst hour (feels-like furthest from the ideal balance point,

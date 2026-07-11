@@ -17,6 +17,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -68,9 +69,47 @@ private fun WidgetContent(data: WidgetData?) {
                 data.morning?.let { WindowRow(it) }
                 Spacer(GlanceModifier.height(6.dp))
                 data.evening?.let { WindowRow(it) }
+                if (data.week.isNotEmpty()) {
+                    Spacer(GlanceModifier.height(7.dp))
+                    WeekStrip(data.week)
+                }
             }
         }
     }
+}
+
+/**
+ * Slim workweek preview. Deliberately low-key — faint labels, translucent
+ * chips — so it reads as background context under the two alerting rows.
+ */
+@Composable
+private fun WeekStrip(week: List<DayChip>) {
+    Row(
+        modifier = GlanceModifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Spacer(GlanceModifier.defaultWeight())
+        week.forEach { day ->
+            Text(day.label, style = TextStyle(color = faint, fontSize = 10.sp))
+            Spacer(GlanceModifier.width(4.dp))
+            Column {
+                SeverityChip(day.morning)
+                Spacer(GlanceModifier.height(2.dp))
+                SeverityChip(day.evening)
+            }
+            Spacer(GlanceModifier.defaultWeight())
+        }
+    }
+}
+
+@Composable
+private fun SeverityChip(severity: String?) {
+    Box(
+        modifier = GlanceModifier
+            .width(18.dp)
+            .height(5.dp)
+            .background(ImageProvider(chipDrawable(severity))),
+    ) {}
 }
 
 @Composable
@@ -148,6 +187,13 @@ private fun severityBackground(severity: String): Int = when (severity) {
     "RED" -> R.drawable.row_red
     "YELLOW" -> R.drawable.row_yellow
     else -> R.drawable.row_green
+}
+
+private fun chipDrawable(severity: String?): Int = when (severity) {
+    "RED" -> R.drawable.chip_red
+    "YELLOW" -> R.drawable.chip_yellow
+    "GREEN" -> R.drawable.chip_green
+    else -> R.drawable.chip_empty
 }
 
 private fun pictographDrawable(picto: String): Int = when (picto) {

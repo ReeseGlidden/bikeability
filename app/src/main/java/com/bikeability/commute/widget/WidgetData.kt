@@ -17,8 +17,20 @@ data class WidgetData(
     val updatedLabel: String,   // "6:52 AM"
     val morning: WindowUi? = null,
     val evening: WindowUi? = null,
+    val week: List<DayChip> = emptyList(),
     val stale: Boolean = false,
     val message: String? = null, // shown when there are no rows (unconfigured / no cache)
+)
+
+/**
+ * One weekday in the slim week strip: morning/evening severity names, or null
+ * when the forecast doesn't cover that day (past, or beyond the horizon).
+ */
+@Serializable
+data class DayChip(
+    val label: String, // "M", "Tu", ...
+    val morning: String? = null,
+    val evening: String? = null,
 )
 
 @Serializable

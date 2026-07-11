@@ -29,7 +29,8 @@ class OpenMeteoClient(
         val url = "$BASE_URL?latitude=$lat&longitude=$lon" +
             "&hourly=$HOURLY_FIELDS" +
             "&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm" +
-            "&timezone=auto&forecast_days=2"
+            // 8 days: from a Saturday the week strip needs through next Friday.
+            "&timezone=auto&forecast_days=8"
 
         val response = http.get(url)
         val body = response.bodyAsText()

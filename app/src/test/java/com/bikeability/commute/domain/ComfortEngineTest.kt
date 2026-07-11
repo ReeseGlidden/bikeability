@@ -148,6 +148,22 @@ class ComfortEngineTest {
     }
 
     @Test
+    fun `week strip shows current workweek on weekdays and next week from Saturday`() {
+        // Wed Jul 8 2026 → Mon Jul 6 .. Fri Jul 10 (current week)
+        val wednesday = LocalDateTime.of(2026, 7, 8, 12, 0)
+        assertEquals(
+            (6..10).map { LocalDate.of(2026, 7, it) },
+            workweekDates(wednesday),
+        )
+        // Mon Jul 6 → same week
+        assertEquals(LocalDate.of(2026, 7, 6), workweekDates(LocalDateTime.of(2026, 7, 6, 6, 0)).first())
+        // Sat Jul 11 and Sun Jul 12 → Mon Jul 13 .. Fri Jul 17 (upcoming week)
+        val nextWeek = (13..17).map { LocalDate.of(2026, 7, it) }
+        assertEquals(nextWeek, workweekDates(LocalDateTime.of(2026, 7, 11, 8, 0)))
+        assertEquals(nextWeek, workweekDates(LocalDateTime.of(2026, 7, 12, 8, 0)))
+    }
+
+    @Test
     fun `window date rolls to tomorrow once the window has fully passed`() {
         val end = LocalTime.of(8, 15)
         val morningOf = LocalDateTime.of(2026, 7, 10, 6, 0)
