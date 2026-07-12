@@ -257,7 +257,6 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
                     w.categoryLabel,
                     style = TextStyle(color = white, fontSize = 13.sp, fontWeight = FontWeight.Medium),
                 )
-                Text("worst @ ${w.worstAtLabel}", style = TextStyle(color = faint, fontSize = 10.sp))
             }
         }
     }

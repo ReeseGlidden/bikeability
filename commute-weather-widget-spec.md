@@ -380,8 +380,11 @@ Per‑row anatomy:
   stacked under it.
 - **Air temp** (large) and **feels‑like** (secondary) for the worst hour.
 - **Category** label.
-- **"worst @ HH:MM"** — when the worst moment lands.
 - **Background** — bikeability gradient tint from `row_severity` (green/yellow/red family).
+
+> A "worst @ HH:MM" timestamp was displayed originally but removed: with hourly forecast
+> buckets and a sub‑hour commute window it degenerates to always naming the window start.
+> The worst hour's timestamp still appears in the settings calibration readout.
 
 Keep it legible at a glance from a home screen; the numbers and label do the explaining, the
 color does the alerting.
