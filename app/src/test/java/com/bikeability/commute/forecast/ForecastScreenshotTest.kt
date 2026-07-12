@@ -105,4 +105,15 @@ class ForecastScreenshotTest {
         val file = renderToPng("forecast-loading") { ForecastScreen(data = null, onOpenSettings = {}) }
         assertTrue(file.length() > 0)
     }
+
+    @Test
+    fun `unconfigured zero state offers setup`() {
+        val data = WidgetData(
+            dateLabel = "Fri Jul 11",
+            updatedLabel = "6:52 AM",
+            message = "Set home & work locations to get started",
+        )
+        val file = renderToPng("forecast-unconfigured") { ForecastScreen(data = data, onOpenSettings = {}) }
+        assertTrue(file.length() > 0)
+    }
 }

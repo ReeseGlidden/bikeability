@@ -36,7 +36,7 @@ class RefreshWorker(
                 WidgetData(
                     dateLabel = formatDateLabel(now),
                     updatedLabel = formatTimeLabel(now),
-                    message = "Tap to set home & work locations",
+                    message = "Set home & work locations to get started",
                 ),
             )
             return Result.success()

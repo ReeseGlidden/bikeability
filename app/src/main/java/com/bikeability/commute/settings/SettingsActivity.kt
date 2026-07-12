@@ -12,7 +12,7 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
-                Surface { SettingsScreen() }
+                Surface { SettingsScreen(onBack = { finish() }) }
             }
         }
     }
