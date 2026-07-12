@@ -26,7 +26,7 @@ data class WindowsCfg(
 @Serializable
 data class BikeCfg(
     val selfSpeedMph: Double = 16.0,
-    val windCombine: String = "quadrature", // or "max"
+    val windCombine: String = "worst", // or "quadrature" / "max"
 )
 
 @Serializable
@@ -76,10 +76,10 @@ data class AppConfig(
 
     fun toEngineParams(): EngineParams = EngineParams(
         selfSpeedMph = bike.selfSpeedMph,
-        windCombine = if (bike.windCombine.equals("max", ignoreCase = true)) {
-            WindCombine.MAX
-        } else {
-            WindCombine.QUADRATURE
+        windCombine = when (bike.windCombine.lowercase()) {
+            "max" -> WindCombine.MAX
+            "quadrature" -> WindCombine.QUADRATURE
+            else -> WindCombine.WORST_CASE
         },
         solarGainK = feelsLike.solarGainK,
         idealPivotF = thresholds.tempF.ideal,

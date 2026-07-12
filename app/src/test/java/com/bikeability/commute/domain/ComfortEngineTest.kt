@@ -77,6 +77,41 @@ class ComfortEngineTest {
         assertEquals(16.0 * MPH_TO_MS, effectiveWindMs(16.0, 2.0, WindCombine.MAX), 1e-9)
     }
 
+    // ---- stopped feels-like and worst-case wind ----
+
+    @Test
+    fun `stopped feels-like drops the self-generated airflow`() {
+        // Golden case 2 conditions: riding feels ~22.6 F, stopped only ambient 5 m/s.
+        val stopped = cToF(apparentTemperatureStopped(3.0, 70.0, 5.0, 100.0, params).apparentTempC)
+        assertEquals(27.4, stopped, 0.2)
+        // Golden case 1: hot sun with little wind relief when stopped.
+        val hotStopped = cToF(apparentTemperatureStopped(24.0, 60.0, 3.0, 700.0, params).apparentTempC)
+        assertEquals(80.4, hotStopped, 0.2)
+    }
+
+    @Test
+    fun `aggregate includes the stopped feels-like for the worst bucket`() {
+        val result = aggregateWindow(listOf(sample(tempC = 24.0, rh = 60.0, windMs = 3.0, shortwave = 700.0)), params)!!
+        // Stopped is hotter than riding in warm sun.
+        assertTrue(result.worstHour.stoppedFeelsLikeF > result.worstHour.feelsLikeF)
+    }
+
+    @Test
+    fun `worst-case wind takes less relief when hot and full chill when cold`() {
+        val worst = params.copy(windCombine = WindCombine.WORST_CASE)
+
+        // Hot: MAX combine (less wind, hotter AT) is further from the pivot.
+        val hotWorst = apparentTemperature(24.0, 60.0, 3.0, 700.0, worst)
+        val hotMax = apparentTemperature(24.0, 60.0, 3.0, 700.0, params.copy(windCombine = WindCombine.MAX))
+        assertEquals(hotMax.apparentTempC, hotWorst.apparentTempC, 1e-9)
+        assertTrue(hotWorst.apparentTempC > apparentTemperature(24.0, 60.0, 3.0, 700.0, params).apparentTempC)
+
+        // Cold: QUADRATURE (more wind, colder AT) is further from the pivot.
+        val coldWorst = apparentTemperature(3.0, 70.0, 5.0, 100.0, worst)
+        val coldQuad = apparentTemperature(3.0, 70.0, 5.0, 100.0, params)
+        assertEquals(coldQuad.apparentTempC, coldWorst.apparentTempC, 1e-9)
+    }
+
     // ---- categories and severity ----
 
     @Test

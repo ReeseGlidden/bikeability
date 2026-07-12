@@ -23,7 +23,7 @@ fun cToF(c: Double): Double = c * 9.0 / 5.0 + 32.0
 fun effectiveWindMs(selfSpeedMph: Double, ambientMs: Double, mode: WindCombine): Double {
     val selfMs = selfSpeedMph * MPH_TO_MS
     return when (mode) {
-        WindCombine.QUADRATURE -> sqrt(selfMs * selfMs + ambientMs * ambientMs)
+        WindCombine.QUADRATURE, WindCombine.WORST_CASE -> sqrt(selfMs * selfMs + ambientMs * ambientMs)
         WindCombine.MAX -> max(selfMs, ambientMs)
     }
 }
@@ -35,6 +35,10 @@ fun vapourPressureHpa(tempC: Double, relHumidityPct: Double): Double =
 /**
  * Steadman Apparent Temperature, radiation-inclusive form, with the effective
  * cycling airspeed in both the convective term and the solar-damping denominator.
+ *
+ * WORST_CASE mode evaluates both wind combines and keeps the AT further from
+ * the ideal pivot: quadrature always yields more wind than max, so this is
+ * "full wind chill when cold, least wind relief when hot" — no threshold.
  */
 fun apparentTemperature(
     tempC: Double,
@@ -43,7 +47,33 @@ fun apparentTemperature(
     shortwaveWm2: Double,
     params: EngineParams,
 ): AtBreakdown {
-    val ws = effectiveWindMs(params.selfSpeedMph, ambientWindMs, params.windCombine)
+    if (params.windCombine == WindCombine.WORST_CASE) {
+        val quad = steadman(tempC, relHumidityPct, ambientWindMs, shortwaveWm2, params, WindCombine.QUADRATURE)
+        val maxed = steadman(tempC, relHumidityPct, ambientWindMs, shortwaveWm2, params, WindCombine.MAX)
+        return maxOf(quad, maxed, compareBy { abs(cToF(it.apparentTempC) - params.idealPivotF) })
+    }
+    return steadman(tempC, relHumidityPct, ambientWindMs, shortwaveWm2, params, params.windCombine)
+}
+
+/** Feels-like for the same conditions while stopped: no self-generated airflow. */
+fun apparentTemperatureStopped(
+    tempC: Double,
+    relHumidityPct: Double,
+    ambientWindMs: Double,
+    shortwaveWm2: Double,
+    params: EngineParams,
+): AtBreakdown =
+    steadman(tempC, relHumidityPct, ambientWindMs, shortwaveWm2, params.copy(selfSpeedMph = 0.0), WindCombine.QUADRATURE)
+
+private fun steadman(
+    tempC: Double,
+    relHumidityPct: Double,
+    ambientWindMs: Double,
+    shortwaveWm2: Double,
+    params: EngineParams,
+    mode: WindCombine,
+): AtBreakdown {
+    val ws = effectiveWindMs(params.selfSpeedMph, ambientWindMs, mode)
     val e = vapourPressureHpa(tempC, relHumidityPct)
     val q = params.solarGainK * shortwaveWm2
     return AtBreakdown(
@@ -141,10 +171,12 @@ fun aggregateWindow(samples: List<WeatherSample>, params: EngineParams): WindowR
         .maxBy { (_, bd) -> abs(cToF(bd.apparentTempC) - params.idealPivotF) }
         .let { (s, bd) ->
             val feelsF = cToF(bd.apparentTempC)
+            val stopped = apparentTemperatureStopped(s.tempC, s.relHumidityPct, s.ambientWindMs, s.shortwaveWm2, params)
             WorstHour(
                 time = s.time,
                 airTempF = cToF(s.tempC),
                 feelsLikeF = feelsF,
+                stoppedFeelsLikeF = cToF(stopped.apparentTempC),
                 category = categoryFor(feelsF, params.tempBoundsF),
                 breakdown = bd,
             )

@@ -82,7 +82,7 @@ internal fun WidgetContent(data: WidgetData?) {
             .clickable(actionStartActivity<ForecastActivity>()),
     ) {
         Header(data)
-        Spacer(GlanceModifier.height(6.dp))
+        Spacer(GlanceModifier.height(4.dp))
         when {
             data == null -> CenteredMessage("Loading forecast…")
             data.morning == null && data.evening == null ->
@@ -94,7 +94,7 @@ internal fun WidgetContent(data: WidgetData?) {
                 Spacer(GlanceModifier.height(6.dp))
                 data.evening?.let { WindowRow(it, compact, GlanceModifier.defaultWeight()) }
                 if (data.week.isNotEmpty()) {
-                    Spacer(GlanceModifier.height(7.dp))
+                    Spacer(GlanceModifier.height(5.dp))
                     WeekStrip(data.week)
                 }
             }
@@ -223,7 +223,7 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
         modifier = modifier
             .fillMaxWidth()
             .background(ImageProvider(severityBackground(w.severity)))
-            .padding(horizontal = 10.dp, vertical = 6.dp),
+            .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = GlanceModifier.width(64.dp)) {
@@ -257,7 +257,10 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
                     w.categoryLabel,
                     style = TextStyle(color = white, fontSize = 13.sp, fontWeight = FontWeight.Medium),
                 )
-            }
+                w.stoppedFeelsLikeF?.let {
+                    Text("stopped $it°", style = TextStyle(color = faint, fontSize = 10.sp))
+                }
+}
         }
     }
 }

@@ -48,6 +48,8 @@ data class WindowUi(
     val rangeLabel: String,     // "7:15–8:15"
     val airTempF: Int,
     val feelsLikeF: Int,
+    /** Same worst bucket, self-speed 0. Nullable so pre-upgrade caches render. */
+    val stoppedFeelsLikeF: Int? = null,
     val categoryLabel: String,
     val severity: String,       // Severity.name
     val pictograph: String,     // Pictograph.name
@@ -92,6 +94,7 @@ fun WindowResult.toUi(windowLabel: String, window: WindowCfg): WindowUi {
         rangeLabel = rangeLabel(window),
         airTempF = worstHour.airTempF.roundToInt(),
         feelsLikeF = worstHour.feelsLikeF.roundToInt(),
+        stoppedFeelsLikeF = worstHour.stoppedFeelsLikeF.roundToInt(),
         categoryLabel = worstHour.category.label,
         severity = severity.name,
         pictograph = pictograph.name,

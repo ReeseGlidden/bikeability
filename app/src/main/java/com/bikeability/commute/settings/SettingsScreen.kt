@@ -119,7 +119,11 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
                 OutlinedButton(
                     onClick = {
                         form = form.copy(
-                            windCombine = if (form.windCombine == "quadrature") "max" else "quadrature",
+                            windCombine = when (form.windCombine) {
+                                "worst" -> "quadrature"
+                                "quadrature" -> "max"
+                                else -> "worst"
+                            },
                         )
                     },
                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -329,7 +333,7 @@ data class FormState(
     val eveningStart: String = "17:00",
     val eveningEnd: String = "18:00",
     val selfSpeedMph: String = "16.0",
-    val windCombine: String = "quadrature",
+    val windCombine: String = "worst",
     val solarGainK: String = "0.08",
     val tooCold: String = "35",
     val gloves: String = "45",

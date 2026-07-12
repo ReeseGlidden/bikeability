@@ -59,7 +59,7 @@ class ForecastScreenshotTest {
         severity: String, picto: String, prob: Int = 0, rate: Double = 0.0,
     ) = WindowUi(
         windowLabel = label, rangeLabel = if (label == "MORNING") "7:15–8:15" else "5:00–6:00",
-        airTempF = air, feelsLikeF = feels, categoryLabel = category,
+        airTempF = air, feelsLikeF = feels, stoppedFeelsLikeF = feels + 6, categoryLabel = category,
         severity = severity, pictograph = picto,
         peakProbPct = prob, peakRateMmHr = rate,
         worstAtLabel = if (label == "MORNING") "7:15 AM" else "5:00 PM",

@@ -36,14 +36,14 @@ class WidgetScreenshotTest {
         updatedLabel = "6:52 AM",
         morning = WindowUi(
             windowLabel = "MORNING", rangeLabel = "7:15–8:15",
-            airTempF = 58, feelsLikeF = 61, categoryLabel = "Ideal",
+            airTempF = 58, feelsLikeF = 61, stoppedFeelsLikeF = 65, categoryLabel = "Ideal",
             severity = "GREEN", pictograph = "SUNNY",
             peakProbPct = 0, peakRateMmHr = 0.0, worstAtLabel = "7:15 AM",
             bdBaseF = 58.0, bdHumidityF = 4.1, bdWindF = -9.2, bdSolarF = 2.9, bdConstantF = -7.7,
         ),
         evening = WindowUi(
             windowLabel = "EVENING", rangeLabel = "5:00–6:00",
-            airTempF = 79, feelsLikeF = 84, categoryLabel = "Too hot",
+            airTempF = 79, feelsLikeF = 84, stoppedFeelsLikeF = 91, categoryLabel = "Too hot",
             severity = "RED", pictograph = "RAIN",
             peakProbPct = 90, peakRateMmHr = 1.2, worstAtLabel = "5:00 PM",
             bdBaseF = 79.0, bdHumidityF = 11.0, bdWindF = -9.6, bdSolarF = 3.6, bdConstantF = -7.7,

@@ -17,7 +17,17 @@ enum class Severity { GREEN, YELLOW, RED }
 
 enum class Pictograph { SUNNY, PARTLY_CLOUDY, CLOUDY, RAIN }
 
-enum class WindCombine { QUADRATURE, MAX }
+enum class WindCombine {
+    QUADRATURE,
+    MAX,
+
+    /**
+     * Worst-case: evaluate AT under both QUADRATURE (more wind) and MAX
+     * (less wind) and keep whichever lands further from the ideal pivot.
+     * Equivalent to "less wind relief when hot, more wind chill when cold".
+     */
+    WORST_CASE,
+}
 
 /**
  * Gear-line thresholds in °F, each named for the decision it drives:
@@ -74,6 +84,8 @@ data class WorstHour(
     val time: LocalDateTime,
     val airTempF: Double,
     val feelsLikeF: Double,
+    /** Same bucket, self-speed 0 — how it feels stopped at a light. */
+    val stoppedFeelsLikeF: Double,
     val category: Category,
     val breakdown: AtBreakdown,
 )

@@ -62,8 +62,9 @@ Properties: calm day → exactly self‑speed; any wind → strictly greater; li
 move it (8 mph ambient at 16 mph self → 17.9 mph effective); quadrature adds sublinearly, i.e.
 the "significant dampening" we wanted, for free.
 
-Config knob `windCombine` also allows `"max"` → `max(self_ms, ambient_ms)` as a fallback mode.
-Default is `"quadrature"`.
+Config knob `windCombine`: `"worst"` (default) evaluates AT under both quadrature and
+`max(self_ms, ambient_ms)` and keeps whichever lands further from the ideal pivot — full wind
+chill when cold, least wind relief when hot. `"quadrature"` and `"max"` force a single mode.
 
 ### 2.2 Vapour pressure (humidity term)
 
@@ -274,7 +275,7 @@ in Preferences DataStore. Edited through the settings screen (§6.4).
   },
   "bike": {
     "selfSpeedMph": 16.0,
-    "windCombine": "quadrature"        // or "max"
+    "windCombine": "worst"             // or "quadrature" / "max"
   },
   "feelsLike": {
     "solarGainK": 0.08
