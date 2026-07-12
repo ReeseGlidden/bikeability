@@ -212,7 +212,7 @@ private fun CompactWindowRow(w: WindowUi, modifier: GlanceModifier) {
         )
         Spacer(GlanceModifier.width(8.dp))
         Text(
-            "riding ${w.feelsLikeF}° · ${w.categoryLabel}",
+            "${w.feelsLikeF}° riding · ${w.categoryLabel}",
             style = TextStyle(color = dim, fontSize = 12.sp),
         )
     }
@@ -253,9 +253,9 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
             )
             Spacer(GlanceModifier.width(6.dp))
             Column {
-                Text("riding ${w.feelsLikeF}°", style = TextStyle(color = faint, fontSize = 10.sp))
+                Text("${w.feelsLikeF}° riding", style = TextStyle(color = faint, fontSize = 10.sp))
                 w.stoppedFeelsLikeF?.let {
-                    Text("stopped $it°", style = TextStyle(color = faint, fontSize = 10.sp))
+                    Text("$it° stopped", style = TextStyle(color = faint, fontSize = 10.sp))
                 }
                 Text(
                     w.categoryLabel,

@@ -177,9 +177,9 @@ private fun WindowCard(w: WindowUi) {
         Text("${w.airTempF}°", color = white, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.width(10.dp))
         Column {
-            Text("riding ${w.feelsLikeF}°", color = faint, fontSize = 10.sp)
+            Text("${w.feelsLikeF}° riding", color = faint, fontSize = 10.sp)
             w.stoppedFeelsLikeF?.let {
-                Text("stopped $it°", color = faint, fontSize = 10.sp)
+                Text("$it° stopped", color = faint, fontSize = 10.sp)
             }
             Text(
                 w.categoryLabel,
