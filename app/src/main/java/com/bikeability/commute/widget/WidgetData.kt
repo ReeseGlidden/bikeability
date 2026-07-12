@@ -70,6 +70,12 @@ private val dateFmt = DateTimeFormatter.ofPattern("EEE MMM d", Locale.US)
 fun formatDateLabel(dt: LocalDateTime): String = dt.format(dateFmt)
 fun formatTimeLabel(dt: LocalDateTime): String = dt.format(timeFmt)
 
+/** Widget header for the displayed commute date; flags the evening flip. */
+fun displayDateLabel(displayDate: java.time.LocalDate, today: java.time.LocalDate): String {
+    val base = displayDate.format(dateFmt)
+    return if (displayDate == today) base else "Tomorrow · $base"
+}
+
 fun dayTitle(date: java.time.LocalDate, today: java.time.LocalDate): String {
     val base = date.format(dateFmt)
     return when (date) {

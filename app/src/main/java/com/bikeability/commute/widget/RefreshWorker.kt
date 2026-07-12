@@ -12,7 +12,7 @@ import com.bikeability.commute.domain.WeatherSample
 import com.bikeability.commute.domain.WindowResult
 import com.bikeability.commute.domain.aggregateWindow
 import com.bikeability.commute.domain.mergeEndpoints
-import com.bikeability.commute.domain.resolveWindowDate
+import com.bikeability.commute.domain.resolveDisplayDate
 import com.bikeability.commute.domain.samplesInWindow
 import com.bikeability.commute.domain.workweekDates
 import java.time.DayOfWeek
@@ -45,13 +45,16 @@ class RefreshWorker(
         return try {
             val (homeSamples, workSamples) = WeatherRepository().fetchBoth(config)
             val engine = config.toEngineParams()
+            // Both rows show the same commute date: today until the planning
+            // cutover, tomorrow after it.
+            val displayDate = resolveDisplayDate(now, LocalTime.parse(config.windows.planCutover))
             WidgetStateRepo.publish(
                 context,
                 WidgetData(
-                    dateLabel = formatDateLabel(now),
+                    dateLabel = displayDateLabel(displayDate, now.toLocalDate()),
                     updatedLabel = formatTimeLabel(now),
-                    morning = windowUi("MORNING", config.windows.morning, homeSamples, workSamples, engine, now),
-                    evening = windowUi("EVENING", config.windows.evening, homeSamples, workSamples, engine, now),
+                    morning = windowUi("MORNING", config.windows.morning, homeSamples, workSamples, engine, displayDate),
+                    evening = windowUi("EVENING", config.windows.evening, homeSamples, workSamples, engine, displayDate),
                     week = weekChips(config.windows.morning, config.windows.evening, homeSamples, workSamples, engine, now),
                     days = dayDetails(config.windows.morning, config.windows.evening, homeSamples, workSamples, engine, now),
                 ),
@@ -81,11 +84,8 @@ class RefreshWorker(
         homeSamples: List<WeatherSample>,
         workSamples: List<WeatherSample>,
         engine: EngineParams,
-        now: LocalDateTime,
-    ): WindowUi? {
-        val date = resolveWindowDate(now, LocalTime.parse(window.end))
-        return mergedResult(window, date, homeSamples, workSamples, engine)?.toUi(label, window)
-    }
+        date: LocalDate,
+    ): WindowUi? = mergedResult(window, date, homeSamples, workSamples, engine)?.toUi(label, window)
 
     private fun weekChips(
         morning: WindowCfg,

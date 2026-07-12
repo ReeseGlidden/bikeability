@@ -101,6 +101,13 @@ class WidgetScreenshotTest {
     }
 
     @Test
+    fun `evening planning header shows tomorrow`() {
+        val data = summerDay.copy(dateLabel = "Tomorrow · Sun Jul 13", updatedLabel = "8:02 PM")
+        val file = renderToPng(data, "tomorrow-header")
+        assertTrue(file.length() > 0)
+    }
+
+    @Test
     fun `stale forecast with partially covered week`() {
         val data = summerDay.copy(
             stale = true,

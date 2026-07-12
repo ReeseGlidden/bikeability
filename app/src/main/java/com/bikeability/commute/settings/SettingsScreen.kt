@@ -110,6 +110,9 @@ fun SettingsScreen(onBack: () -> Unit = {}) {
             WindowEditor("Evening", form.eveningStart, form.eveningEnd) { s, e ->
                 form = form.copy(eveningStart = s, eveningEnd = e)
             }
+            NumField("Show tomorrow's commute after (HH:MM)", form.planCutover) {
+                form = form.copy(planCutover = it)
+            }
 
             SectionTitle("Bike")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -332,6 +335,7 @@ data class FormState(
     val morningEnd: String = "08:15",
     val eveningStart: String = "17:00",
     val eveningEnd: String = "18:00",
+    val planCutover: String = "19:00",
     val selfSpeedMph: String = "16.0",
     val windCombine: String = "worst",
     val solarGainK: String = "0.08",
@@ -360,6 +364,7 @@ data class FormState(
             windows = WindowsCfg(
                 morning = WindowCfg(time(morningStart) ?: return null, time(morningEnd) ?: return null),
                 evening = WindowCfg(time(eveningStart) ?: return null, time(eveningEnd) ?: return null),
+                planCutover = time(planCutover) ?: return null,
             ),
             bike = BikeCfg(
                 selfSpeedMph = num(selfSpeedMph) ?: return null,
@@ -385,6 +390,7 @@ data class FormState(
             morningEnd = c.windows.morning.end,
             eveningStart = c.windows.evening.start,
             eveningEnd = c.windows.evening.end,
+            planCutover = c.windows.planCutover,
             selfSpeedMph = c.bike.selfSpeedMph.toString(),
             windCombine = c.bike.windCombine,
             solarGainK = c.feelsLike.solarGainK.toString(),

@@ -21,6 +21,8 @@ data class WindowCfg(val start: String, val end: String)
 data class WindowsCfg(
     val morning: WindowCfg = WindowCfg("07:15", "08:15"),
     val evening: WindowCfg = WindowCfg("17:00", "18:00"),
+    /** From this time of day the widget shows tomorrow's commute. */
+    val planCutover: String = "19:00",
 )
 
 @Serializable

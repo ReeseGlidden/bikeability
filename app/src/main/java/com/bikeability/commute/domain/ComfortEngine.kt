@@ -129,12 +129,12 @@ fun samplesInWindow(
 }
 
 /**
- * The date a window should be computed for: today while the window hasn't
- * fully passed, otherwise tomorrow (a 9 PM glance should show tomorrow
- * morning, not this morning's history).
+ * The commute date the widget rows display: today until the planning
+ * cutover (default 7 PM), then tomorrow — both windows flip together so an
+ * evening glance is always about planning the next ride.
  */
-fun resolveWindowDate(now: LocalDateTime, windowEnd: LocalTime): LocalDate =
-    if (now.toLocalTime() < windowEnd) now.toLocalDate() else now.toLocalDate().plusDays(1)
+fun resolveDisplayDate(now: LocalDateTime, planCutover: LocalTime): LocalDate =
+    if (now.toLocalTime() < planCutover) now.toLocalDate() else now.toLocalDate().plusDays(1)
 
 /** The next time [time] occurs strictly after [now] — today if still ahead, else tomorrow. */
 fun nextOccurrence(now: LocalDateTime, time: LocalTime): LocalDateTime {

@@ -271,7 +271,8 @@ in Preferences DataStore. Edited through the settings screen (§6.4).
   "work": { "lat": 38.895, "lon": -77.036, "label": "Work" },
   "windows": {
     "morning": { "start": "07:15", "end": "08:15" },
-    "evening": { "start": "17:00", "end": "18:00" }
+    "evening": { "start": "17:00", "end": "18:00" },
+    "planCutover": "19:00"   // from this time the widget shows tomorrow's commute
   },
   "bike": {
     "selfSpeedMph": 16.0,

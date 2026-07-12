@@ -231,12 +231,22 @@ class ComfortEngineTest {
     }
 
     @Test
-    fun `window date rolls to tomorrow once the window has fully passed`() {
-        val end = LocalTime.of(8, 15)
-        val morningOf = LocalDateTime.of(2026, 7, 10, 6, 0)
-        val nightOf = LocalDateTime.of(2026, 7, 10, 21, 0)
-        assertEquals(LocalDate.of(2026, 7, 10), resolveWindowDate(morningOf, end))
-        assertEquals(LocalDate.of(2026, 7, 11), resolveWindowDate(nightOf, end))
+    fun `widget shows today until the planning cutover then tomorrow`() {
+        val cutover = LocalTime.of(19, 0)
+        // Mid-day (even after the morning window passed): still today.
+        assertEquals(
+            LocalDate.of(2026, 7, 10),
+            resolveDisplayDate(LocalDateTime.of(2026, 7, 10, 14, 0), cutover),
+        )
+        // At and after 7 PM: tomorrow.
+        assertEquals(
+            LocalDate.of(2026, 7, 11),
+            resolveDisplayDate(LocalDateTime.of(2026, 7, 10, 19, 0), cutover),
+        )
+        assertEquals(
+            LocalDate.of(2026, 7, 11),
+            resolveDisplayDate(LocalDateTime.of(2026, 7, 10, 23, 30), cutover),
+        )
     }
 
     // ---- aggregation ----
