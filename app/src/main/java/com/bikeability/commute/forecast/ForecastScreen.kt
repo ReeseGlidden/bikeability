@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -176,11 +177,17 @@ private fun WindowCard(w: WindowUi) {
         Text("${w.airTempF}°", color = white, fontSize = 28.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.width(10.dp))
         Column {
-            Text("feels ${w.feelsLikeF}°", color = dim, fontSize = 12.sp)
-            Text(w.categoryLabel, color = white, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            Text("riding ${w.feelsLikeF}°", color = faint, fontSize = 10.sp)
             w.stoppedFeelsLikeF?.let {
                 Text("stopped $it°", color = faint, fontSize = 10.sp)
             }
+            Text(
+                w.categoryLabel,
+                color = white,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                fontStyle = FontStyle.Italic,
+            )
         }
     }
 }

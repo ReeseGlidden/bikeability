@@ -34,6 +34,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -211,7 +212,7 @@ private fun CompactWindowRow(w: WindowUi, modifier: GlanceModifier) {
         )
         Spacer(GlanceModifier.width(8.dp))
         Text(
-            "feels ${w.feelsLikeF}° · ${w.categoryLabel}",
+            "riding ${w.feelsLikeF}° · ${w.categoryLabel}",
             style = TextStyle(color = dim, fontSize = 12.sp),
         )
     }
@@ -252,15 +253,20 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
             )
             Spacer(GlanceModifier.width(6.dp))
             Column {
-                Text("feels ${w.feelsLikeF}°", style = TextStyle(color = dim, fontSize = 12.sp))
-                Text(
-                    w.categoryLabel,
-                    style = TextStyle(color = white, fontSize = 13.sp, fontWeight = FontWeight.Medium),
-                )
+                Text("riding ${w.feelsLikeF}°", style = TextStyle(color = faint, fontSize = 10.sp))
                 w.stoppedFeelsLikeF?.let {
                     Text("stopped $it°", style = TextStyle(color = faint, fontSize = 10.sp))
                 }
-}
+                Text(
+                    w.categoryLabel,
+                    style = TextStyle(
+                        color = white,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontStyle = FontStyle.Italic,
+                    ),
+                )
+            }
         }
     }
 }
