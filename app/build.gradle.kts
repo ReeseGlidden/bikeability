@@ -13,8 +13,8 @@ android {
         applicationId = "com.bikeability.commute"
         minSdk = 26
         targetSdk = 35
-        versionCode = 5
-        versionName = "0.3.0"
+        versionCode = 6
+        versionName = "0.4.0"
     }
 
     buildTypes {
@@ -63,4 +63,9 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    // Registers ComponentActivity in the debug manifest so Robolectric's
+    // createComposeRule can launch it for the screen screenshot tests.
+    debugImplementation(libs.compose.ui.test.manifest)
 }

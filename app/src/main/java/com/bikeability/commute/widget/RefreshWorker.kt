@@ -53,6 +53,7 @@ class RefreshWorker(
                     morning = windowUi("MORNING", config.windows.morning, homeSamples, workSamples, engine, now),
                     evening = windowUi("EVENING", config.windows.evening, homeSamples, workSamples, engine, now),
                     week = weekChips(config.windows.morning, config.windows.evening, homeSamples, workSamples, engine, now),
+                    days = dayDetails(config.windows.morning, config.windows.evening, homeSamples, workSamples, engine, now),
                 ),
             )
             Result.success()
@@ -82,16 +83,8 @@ class RefreshWorker(
         engine: EngineParams,
         now: LocalDateTime,
     ): WindowUi? {
-        val start = LocalTime.parse(window.start)
-        val end = LocalTime.parse(window.end)
-        val date = resolveWindowDate(now, end)
-        val home = aggregateWindow(samplesInWindow(homeSamples, date, start, end), engine)
-        val work = aggregateWindow(samplesInWindow(workSamples, date, start, end), engine)
-        val merged = when {
-            home != null && work != null -> mergeEndpoints(home, work, engine)
-            else -> home ?: work
-        } ?: return null
-        return merged.toUi(label, window)
+        val date = resolveWindowDate(now, LocalTime.parse(window.end))
+        return mergedResult(window, date, homeSamples, workSamples, engine)?.toUi(label, window)
     }
 
     private fun weekChips(
@@ -104,27 +97,45 @@ class RefreshWorker(
     ): List<DayChip> = workweekDates(now).map { date ->
         DayChip(
             label = DAY_LABELS.getValue(date.dayOfWeek),
-            morning = mergedSeverity(morning, date, homeSamples, workSamples, engine),
-            evening = mergedSeverity(evening, date, homeSamples, workSamples, engine),
+            morning = mergedResult(morning, date, homeSamples, workSamples, engine)?.severity?.name,
+            evening = mergedResult(evening, date, homeSamples, workSamples, engine)?.severity?.name,
         )
     }
 
-    private fun mergedSeverity(
+    private fun dayDetails(
+        morning: WindowCfg,
+        evening: WindowCfg,
+        homeSamples: List<HourSample>,
+        workSamples: List<HourSample>,
+        engine: EngineParams,
+        now: LocalDateTime,
+    ): List<DayDetail> {
+        val today = now.toLocalDate()
+        return (0L..6L).map { offset ->
+            val date = today.plusDays(offset)
+            DayDetail(
+                title = dayTitle(date, today),
+                morning = mergedResult(morning, date, homeSamples, workSamples, engine)?.toUi("MORNING", morning),
+                evening = mergedResult(evening, date, homeSamples, workSamples, engine)?.toUi("EVENING", evening),
+            )
+        }
+    }
+
+    private fun mergedResult(
         window: WindowCfg,
         date: LocalDate,
         homeSamples: List<HourSample>,
         workSamples: List<HourSample>,
         engine: EngineParams,
-    ): String? {
+    ): WindowResult? {
         val start = LocalTime.parse(window.start)
         val end = LocalTime.parse(window.end)
         val home = aggregateWindow(samplesInWindow(homeSamples, date, start, end), engine)
         val work = aggregateWindow(samplesInWindow(workSamples, date, start, end), engine)
-        val merged: WindowResult? = when {
+        return when {
             home != null && work != null -> mergeEndpoints(home, work, engine)
             else -> home ?: work
         }
-        return merged?.severity?.name
     }
 
     private companion object {

@@ -18,8 +18,17 @@ data class WidgetData(
     val morning: WindowUi? = null,
     val evening: WindowUi? = null,
     val week: List<DayChip> = emptyList(),
+    val days: List<DayDetail> = emptyList(), // today + 6, for the forecast screen
     val stale: Boolean = false,
     val message: String? = null, // shown when there are no rows (unconfigured / no cache)
+)
+
+/** One card on the forecast screen: a full day at commute-window resolution. */
+@Serializable
+data class DayDetail(
+    val title: String, // "Today · Fri Jul 11", "Tomorrow · Sat Jul 12", "Mon Jul 14"
+    val morning: WindowUi? = null,
+    val evening: WindowUi? = null,
 )
 
 /**
@@ -58,6 +67,15 @@ private val dateFmt = DateTimeFormatter.ofPattern("EEE MMM d", Locale.US)
 
 fun formatDateLabel(dt: LocalDateTime): String = dt.format(dateFmt)
 fun formatTimeLabel(dt: LocalDateTime): String = dt.format(timeFmt)
+
+fun dayTitle(date: java.time.LocalDate, today: java.time.LocalDate): String {
+    val base = date.format(dateFmt)
+    return when (date) {
+        today -> "Today · $base"
+        today.plusDays(1) -> "Tomorrow · $base"
+        else -> base
+    }
+}
 
 private fun rangeLabel(w: WindowCfg): String {
     fun short(s: String): String {

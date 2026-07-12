@@ -39,7 +39,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.bikeability.commute.R
-import com.bikeability.commute.settings.SettingsActivity
+import com.bikeability.commute.forecast.ForecastActivity
 
 class CommuteWidget : GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -79,7 +79,7 @@ internal fun WidgetContent(data: WidgetData?) {
             .fillMaxSize()
             .background(ImageProvider(R.drawable.widget_bg))
             .padding(horizontal = 10.dp, vertical = 8.dp)
-            .clickable(actionStartActivity<SettingsActivity>()),
+            .clickable(actionStartActivity<ForecastActivity>()),
     ) {
         Header(data)
         Spacer(GlanceModifier.height(6.dp))
@@ -278,7 +278,7 @@ private fun chipDrawable(severity: String?): Int = when (severity) {
     else -> R.drawable.chip_empty
 }
 
-private fun pictographDrawable(picto: String): Int = when (picto) {
+internal fun pictographDrawable(picto: String): Int = when (picto) {
     "RAIN" -> R.drawable.ic_rain
     "CLOUDY" -> R.drawable.ic_cloudy
     "PARTLY_CLOUDY" -> R.drawable.ic_partly_cloudy
