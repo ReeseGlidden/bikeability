@@ -43,14 +43,14 @@ data class EngineParams(
     val redRateMmHr: Double = 0.3,
 )
 
-/** One hourly forecast bucket, metric units, for a single location. */
-data class HourSample(
+/** One forecast bucket (15-minutely), metric units, for a single location. */
+data class WeatherSample(
     val time: LocalDateTime,
     val tempC: Double,
     val relHumidityPct: Double,
     val ambientWindMs: Double,
     val shortwaveWm2: Double,
-    val precipMm: Double,
+    val precipRateMmHr: Double,
     val precipProbPct: Double,
     val cloudCoverPct: Double,
 )

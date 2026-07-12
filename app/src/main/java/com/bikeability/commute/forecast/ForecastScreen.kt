@@ -170,7 +170,7 @@ private fun WindowCard(w: WindowUi) {
                 contentDescription = w.pictograph,
                 modifier = Modifier.size(26.dp),
             )
-            Text("%.1fmm · %d%%".format(w.peakRateMmHr, w.peakProbPct), color = dim, fontSize = 10.sp)
+            Text("%.1fmm/h · %d%%".format(w.peakRateMmHr, w.peakProbPct), color = dim, fontSize = 10.sp)
         }
         Spacer(Modifier.weight(1f))
         Text("${w.airTempF}°", color = white, fontSize = 28.sp, fontWeight = FontWeight.Bold)

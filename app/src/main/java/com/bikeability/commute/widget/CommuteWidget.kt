@@ -262,7 +262,7 @@ private fun RegularWindowRow(w: WindowUi, modifier: GlanceModifier) {
     }
 }
 
-private fun formatRate(mm: Double): String = "%.1fmm".format(mm)
+private fun formatRate(mmPerHour: Double): String = "%.1fmm/h".format(mmPerHour)
 
 private fun severityBackground(severity: String): Int = when (severity) {
     "RED" -> R.drawable.row_red

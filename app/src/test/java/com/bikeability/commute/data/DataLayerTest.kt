@@ -12,7 +12,7 @@ import org.junit.Test
 import java.time.LocalTime
 
 /**
- * Parses a captured real Open-Meteo two-point response (see
+ * Parses a captured real Open-Meteo two-point 15-minutely response (see
  * resources/openmeteo_two_points.json) and runs it through the full
  * DTO → samples → aggregate → merge pipeline.
  */
@@ -26,17 +26,19 @@ class DataLayerTest {
     }
 
     @Test
-    fun `real two-point response parses into two 48-hour blocks`() {
+    fun `real two-point response parses into two 8-day 15-minutely blocks`() {
         val responses = load()
         assertEquals(2, responses.size)
         responses.forEach { r ->
             val samples = r.toSamples()
-            assertEquals(48, samples.size)
+            assertEquals(8 * 96, samples.size)
             samples.forEach { s ->
                 assertTrue("humidity in range", s.relHumidityPct in 0.0..100.0)
                 assertTrue("cloud in range", s.cloudCoverPct in 0.0..100.0)
                 assertTrue("wind non-negative", s.ambientWindMs >= 0.0)
             }
+            // 15-minute spacing between consecutive buckets.
+            assertEquals(15, java.time.Duration.between(samples[0].time, samples[1].time).toMinutes())
         }
     }
 
@@ -50,7 +52,11 @@ class DataLayerTest {
 
         val start = LocalTime.of(7, 15)
         val end = LocalTime.of(8, 15)
-        val homeResult = aggregateWindow(samplesInWindow(home, date, start, end), params)
+        val homeWindow = samplesInWindow(home, date, start, end)
+        // A one-hour window over 15-minutely data holds four overlapping
+        // buckets: 7:15, 7:30, 7:45, and 8:00 (the 8:00 bucket reaches 8:15).
+        assertEquals(4, homeWindow.size)
+        val homeResult = aggregateWindow(homeWindow, params)
         val workResult = aggregateWindow(samplesInWindow(work, date, start, end), params)
         assertNotNull(homeResult)
         assertNotNull(workResult)

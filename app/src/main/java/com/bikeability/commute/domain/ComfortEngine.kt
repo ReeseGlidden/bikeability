@@ -83,18 +83,19 @@ fun pictographFor(peakRateMmHr: Double, meanCloudCoverPct: Double, params: Engin
 }
 
 /**
- * Hourly buckets [t, t+1h) that overlap the clock window [start, end) on [date].
- * No interpolation for v1.
+ * Forecast buckets [t, t+bucket) that overlap the clock window [start, end)
+ * on [date]. No interpolation.
  */
 fun samplesInWindow(
-    samples: List<HourSample>,
+    samples: List<WeatherSample>,
     date: LocalDate,
     start: LocalTime,
     end: LocalTime,
-): List<HourSample> {
+    bucketMinutes: Long = 15,
+): List<WeatherSample> {
     val windowStart = LocalDateTime.of(date, start)
     val windowEnd = LocalDateTime.of(date, end)
-    return samples.filter { it.time < windowEnd && it.time.plusHours(1) > windowStart }
+    return samples.filter { it.time < windowEnd && it.time.plusMinutes(bucketMinutes) > windowStart }
 }
 
 /**
@@ -129,7 +130,7 @@ fun workweekDates(now: LocalDateTime): List<LocalDate> {
  * §2.5–2.7: worst hour (feels-like furthest from the ideal balance point,
  * either direction), peak precip over the window, pictograph, and row severity.
  */
-fun aggregateWindow(samples: List<HourSample>, params: EngineParams): WindowResult? {
+fun aggregateWindow(samples: List<WeatherSample>, params: EngineParams): WindowResult? {
     if (samples.isEmpty()) return null
 
     val worst = samples
@@ -150,7 +151,7 @@ fun aggregateWindow(samples: List<HourSample>, params: EngineParams): WindowResu
         }
 
     val peakProb = samples.maxOf { it.precipProbPct }
-    val peakRate = samples.maxOf { it.precipMm }
+    val peakRate = samples.maxOf { it.precipRateMmHr }
     val meanCloud = samples.sumOf { it.cloudCoverPct } / samples.size
 
     return WindowResult(

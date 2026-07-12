@@ -10,9 +10,9 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 
 private const val BASE_URL = "https://api.open-meteo.com/v1/forecast"
-private const val HOURLY_FIELDS =
+private const val MINUTELY_15_FIELDS =
     "temperature_2m,relative_humidity_2m,precipitation,precipitation_probability," +
-        "cloud_cover,wind_speed_10m,shortwave_radiation,apparent_temperature"
+        "cloud_cover,wind_speed_10m,shortwave_radiation"
 
 class OpenMeteoClient(
     private val http: HttpClient = HttpClient(OkHttp),
@@ -27,7 +27,7 @@ class OpenMeteoClient(
         val lat = points.joinToString(",") { it.first.toString() }
         val lon = points.joinToString(",") { it.second.toString() }
         val url = "$BASE_URL?latitude=$lat&longitude=$lon" +
-            "&hourly=$HOURLY_FIELDS" +
+            "&minutely_15=$MINUTELY_15_FIELDS" +
             "&temperature_unit=celsius&wind_speed_unit=ms&precipitation_unit=mm" +
             // 8 days: from a Saturday the week strip needs through next Friday.
             "&timezone=auto&forecast_days=8"

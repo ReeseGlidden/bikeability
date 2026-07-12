@@ -8,7 +8,7 @@ import com.bikeability.commute.config.ConfigStore
 import com.bikeability.commute.config.WindowCfg
 import com.bikeability.commute.data.WeatherRepository
 import com.bikeability.commute.domain.EngineParams
-import com.bikeability.commute.domain.HourSample
+import com.bikeability.commute.domain.WeatherSample
 import com.bikeability.commute.domain.WindowResult
 import com.bikeability.commute.domain.aggregateWindow
 import com.bikeability.commute.domain.mergeEndpoints
@@ -78,8 +78,8 @@ class RefreshWorker(
     private fun windowUi(
         label: String,
         window: WindowCfg,
-        homeSamples: List<HourSample>,
-        workSamples: List<HourSample>,
+        homeSamples: List<WeatherSample>,
+        workSamples: List<WeatherSample>,
         engine: EngineParams,
         now: LocalDateTime,
     ): WindowUi? {
@@ -90,8 +90,8 @@ class RefreshWorker(
     private fun weekChips(
         morning: WindowCfg,
         evening: WindowCfg,
-        homeSamples: List<HourSample>,
-        workSamples: List<HourSample>,
+        homeSamples: List<WeatherSample>,
+        workSamples: List<WeatherSample>,
         engine: EngineParams,
         now: LocalDateTime,
     ): List<DayChip> = workweekDates(now).map { date ->
@@ -105,8 +105,8 @@ class RefreshWorker(
     private fun dayDetails(
         morning: WindowCfg,
         evening: WindowCfg,
-        homeSamples: List<HourSample>,
-        workSamples: List<HourSample>,
+        homeSamples: List<WeatherSample>,
+        workSamples: List<WeatherSample>,
         engine: EngineParams,
         now: LocalDateTime,
     ): List<DayDetail> {
@@ -124,8 +124,8 @@ class RefreshWorker(
     private fun mergedResult(
         window: WindowCfg,
         date: LocalDate,
-        homeSamples: List<HourSample>,
-        workSamples: List<HourSample>,
+        homeSamples: List<WeatherSample>,
+        workSamples: List<WeatherSample>,
         engine: EngineParams,
     ): WindowResult? {
         val start = LocalTime.parse(window.start)

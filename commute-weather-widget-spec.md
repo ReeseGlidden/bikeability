@@ -33,7 +33,7 @@ The two windows are **fully independent**. There is no round‑trip coupling log
 | Row color | single "bikeability" tint = **max severity** of {temp category, precip} |
 | Severity ladder | green: ideal, jacket · yellow: gloves, shorts · red: too‑cold, too‑hot |
 | Endpoints | query weather at **both** home and work; take the **worse** per window |
-| Data source | **Open‑Meteo** (free, no API key, hourly, native apparent‑temp components) |
+| Data source | **Open‑Meteo** (free, no API key, **15‑minutely** `minutely_15`, native apparent‑temp components) |
 | Stack | Kotlin · Jetpack **Glance** widget · **WorkManager** refresh · **DataStore** config |
 
 ---
@@ -113,10 +113,10 @@ Q = solarGainK * shortwave_radiation      # shortwave in W/m²
   nighttime clear‑sky radiative *cooling* — real, but negligible for daylight commute windows.)
 - `solarGainK` is **the** primary calibration knob (see §5.2).
 
-### 2.5 Per‑hour → window aggregation
+### 2.5 Per‑bucket → window aggregation
 
-For each window, gather every hourly forecast bucket that **overlaps** the clock window
-(no interpolation for v1). For each bucket compute `AT` per above. Then aggregate:
+For each window, gather every **15‑minute** forecast bucket that **overlaps** the clock window
+(no interpolation). A sub‑hour commute window gets 3–5 real samples instead of 1–2. For each bucket compute `AT` per above. Then aggregate:
 
 **Worst hour** — the decision‑relevant temperature:
 ```
@@ -232,13 +232,16 @@ self‑generated 16 mph airflow.
 
 ## 3. Data source — Open‑Meteo
 
-Free, no API key, hourly resolution, and it natively returns every feels‑like component.
+Free, no API key, **15‑minutely** resolution (`minutely_15` — native model resolution in North
+America/Central Europe, gracefully interpolated from hourly elsewhere and at the far horizon),
+and it natively returns every feels‑like component. Note `precipitation` is mm **per 15‑minute
+bucket** — convert ×4 to mm/h before gating.
 
 - **Endpoint:** `https://api.open-meteo.com/v1/forecast`
 - **Multi‑point in one request:** pass comma‑separated coordinates —
   `latitude=<home>,<work>&longitude=<home>,<work>` — and the response is an array, one block
   per point. One request covers both endpoints.
-- **Hourly fields:** `temperature_2m`, `relative_humidity_2m`, `precipitation`,
+- **Fields (`minutely_15=`):** `temperature_2m`, `relative_humidity_2m`, `precipitation`,
   `precipitation_probability`, `cloud_cover`, `wind_speed_10m`, `shortwave_radiation`.
   Also pull `apparent_temperature` — not used in the decision (it won't respect our wind floor)
   but handy as a sanity reference during calibration.

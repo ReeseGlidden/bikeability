@@ -18,10 +18,10 @@ class ComfortEngineTest {
         rh: Double = 50.0,
         windMs: Double = 0.0,
         shortwave: Double = 0.0,
-        precipMm: Double = 0.0,
+        precipRate: Double = 0.0,
         precipProb: Double = 0.0,
         cloud: Double = 0.0,
-    ) = HourSample(time, tempC, rh, windMs, shortwave, precipMm, precipProb, cloud)
+    ) = WeatherSample(time, tempC, rh, windMs, shortwave, precipRate, precipProb, cloud)
 
     // ---- §2.9 golden case 1: warm, humid, sunny, light wind ----
 
@@ -140,10 +140,24 @@ class ComfortEngineTest {
     // ---- window slicing ----
 
     @Test
-    fun `window 715 to 815 overlaps the 7 and 8 oclock buckets only`() {
+    fun `window 715 to 815 overlaps exactly the four 15-minute buckets inside it`() {
+        val date = LocalDate.of(2026, 7, 10)
+        val buckets = (0 until 24 * 4).map { i ->
+            sample(time = LocalDateTime.of(2026, 7, 10, 0, 0).plusMinutes(i * 15L))
+        }
+        val inWindow = samplesInWindow(buckets, date, LocalTime.of(7, 15), LocalTime.of(8, 15))
+        assertEquals(
+            listOf("07:15", "07:30", "07:45", "08:00"),
+            inWindow.map { "%02d:%02d".format(it.time.hour, it.time.minute) },
+        )
+    }
+
+    @Test
+    fun `bucket width is configurable for coarser data`() {
         val date = LocalDate.of(2026, 7, 10)
         val hours = (5..10).map { h -> sample(time = LocalDateTime.of(2026, 7, 10, h, 0)) }
-        val inWindow = samplesInWindow(hours, date, LocalTime.of(7, 15), LocalTime.of(8, 15))
+        val inWindow =
+            samplesInWindow(hours, date, LocalTime.of(7, 15), LocalTime.of(8, 15), bucketMinutes = 60)
         assertEquals(listOf(7, 8), inWindow.map { it.time.hour })
     }
 
@@ -215,10 +229,10 @@ class ComfortEngineTest {
 
     @Test
     fun `peak precip is max across the window not the worst hour's value`() {
-        val dryButCold = sample(tempC = -5.0, precipMm = 0.0, precipProb = 0.0)
+        val dryButCold = sample(tempC = -5.0, precipRate = 0.0, precipProb = 0.0)
         val wetButMild = sample(
             time = LocalDateTime.of(2026, 7, 10, 8, 0),
-            tempC = 15.0, precipMm = 1.2, precipProb = 90.0,
+            tempC = 15.0, precipRate = 1.2, precipProb = 90.0,
         )
         val result = aggregateWindow(listOf(dryButCold, wetButMild), params)!!
         assertEquals(1.2, result.peakRateMmHr, 1e-9)
@@ -229,7 +243,7 @@ class ComfortEngineTest {
     @Test
     fun `row severity is max of temp and precip severities`() {
         // Ideal temp but heavy rain → red row ("Ideal · rain 90%").
-        val idealWet = sample(tempC = 18.0, rh = 60.0, precipMm = 1.2, precipProb = 90.0)
+        val idealWet = sample(tempC = 18.0, rh = 60.0, precipRate = 1.2, precipProb = 90.0)
         val result = aggregateWindow(listOf(idealWet), params)!!
         assertEquals(Category.IDEAL, result.worstHour.category)
         assertEquals(Severity.RED, result.severity)
@@ -255,7 +269,7 @@ class ComfortEngineTest {
             listOf(sample(tempC = 0.0, precipProb = 10.0, cloud = 20.0)), params,
         )!!
         val work = aggregateWindow(
-            listOf(sample(tempC = 10.0, precipProb = 40.0, precipMm = 0.1, cloud = 80.0)), params,
+            listOf(sample(tempC = 10.0, precipProb = 40.0, precipRate = 0.1, cloud = 80.0)), params,
         )!!
         val merged = mergeEndpoints(home, work, params)
         // Home's 0 °C hour is further from 60 °F than work's 10 °C hour.
@@ -270,7 +284,7 @@ class ComfortEngineTest {
     @Test
     fun `merged severity is at least each endpoint's severity`() {
         val calm = aggregateWindow(listOf(sample(tempC = 17.0)), params)!!
-        val rainy = aggregateWindow(listOf(sample(tempC = 17.0, precipMm = 0.5, precipProb = 80.0)), params)!!
+        val rainy = aggregateWindow(listOf(sample(tempC = 17.0, precipRate = 0.5, precipProb = 80.0)), params)!!
         assertEquals(Severity.RED, mergeEndpoints(calm, rainy, params).severity)
         assertEquals(Severity.RED, mergeEndpoints(rainy, calm, params).severity)
     }
