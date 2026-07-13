@@ -21,6 +21,7 @@ object RefreshScheduler {
     private const val ONE_OFF_WORK = "weather-refresh-now"
     private const val PRE_MORNING_WORK = "pre-morning-refresh"
     private const val PRE_EVENING_WORK = "pre-evening-refresh"
+    private const val PLAN_CUTOVER_WORK = "plan-cutover-refresh"
 
     /** Refresh this long before a window opens so the glance is fresh. */
     private const val PRE_WINDOW_LEAD_MINUTES = 20L
@@ -36,12 +37,22 @@ object RefreshScheduler {
      */
     fun scheduleAll(context: Context, config: AppConfig) {
         schedulePeriodic(context, config.refresh.intervalMinutes)
-        schedulePreWindow(context, PRE_MORNING_WORK, config.windows.morning.start)
-        schedulePreWindow(context, PRE_EVENING_WORK, config.windows.evening.start)
+        scheduleDailyAt(
+            context,
+            PRE_MORNING_WORK,
+            LocalTime.parse(config.windows.morning.start).minusMinutes(PRE_WINDOW_LEAD_MINUTES),
+        )
+        scheduleDailyAt(
+            context,
+            PRE_EVENING_WORK,
+            LocalTime.parse(config.windows.evening.start).minusMinutes(PRE_WINDOW_LEAD_MINUTES),
+        )
+        // Right at the cutover, so the widget flips to tomorrow crisply
+        // instead of whenever the next hourly refresh lands.
+        scheduleDailyAt(context, PLAN_CUTOVER_WORK, LocalTime.parse(config.windows.planCutover))
     }
 
-    private fun schedulePreWindow(context: Context, workName: String, windowStart: String) {
-        val target = LocalTime.parse(windowStart).minusMinutes(PRE_WINDOW_LEAD_MINUTES)
+    private fun scheduleDailyAt(context: Context, workName: String, target: LocalTime) {
         val delay = Duration.between(LocalDateTime.now(), nextOccurrence(LocalDateTime.now(), target))
         val request = PeriodicWorkRequestBuilder<RefreshWorker>(24, TimeUnit.HOURS)
             .setInitialDelay(delay.toMinutes(), TimeUnit.MINUTES)
@@ -84,5 +95,6 @@ object RefreshScheduler {
         wm.cancelUniqueWork(PERIODIC_WORK)
         wm.cancelUniqueWork(PRE_MORNING_WORK)
         wm.cancelUniqueWork(PRE_EVENING_WORK)
+        wm.cancelUniqueWork(PLAN_CUTOVER_WORK)
     }
 }
